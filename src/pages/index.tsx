@@ -14,6 +14,8 @@ const Index: ({ location }: { location: LocationProps }) => JSX.Element = ({ loc
   } = location;
 
   const [loading, setLoading] = useState<boolean>(true);
+  const [title, setTitle] = useState<string>('');
+
   const [permission, setPermission] = useState<PermissionProps>({
     copy: true,
     print: true,
@@ -37,6 +39,7 @@ const Index: ({ location }: { location: LocationProps }) => JSX.Element = ({ loc
           download: true,
           edit: true,
         });
+        setTitle(response.data.name);
         // load content from url
         // const downloaded = await request(response.data.url);
         setDataUrl(response.data.url);
@@ -52,13 +55,13 @@ const Index: ({ location }: { location: LocationProps }) => JSX.Element = ({ loc
   // 配置项
   const options: LuckysheetConfig = {
     // filename
-    title: 'This is a Demo Sheet',
-    gridKey: new Date().getTime() + '',
+    title,
+    gridKey: rid,
     userInfo:
       '<i style="font-size:16px;color:#ff6a00;" class="fa fa-taxi" aria-hidden="true"></i> Lucky',
     allowUpdate: true,
     loadUrl: dataUrl,
-    updateUrl: 'ws://localhost:8080/eoffice/api/socket/lucksheet/' + rid,
+    updateUrl: 'ws://localhost:8080/eoffice/api/socket/sheet/' + rid,
     // data,
   };
   // return <LuckysheetWrapper options={options} />;
