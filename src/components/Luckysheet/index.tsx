@@ -14,6 +14,8 @@ export interface LuckysheetConfig {
   data?: [];
   userImage?: string;
   userInfo: string;
+  loadUrl?: string;
+  updateUrl?: string;
   // ------------------
   // 权限配置
   // ------------------
@@ -25,8 +27,13 @@ export interface LuckysheetConfig {
   };
 }
 
-
-const LuckysheetWrapper = ({options, onSave}: { options: LuckysheetConfig, onSave: (value: string) => void }) => {
+const LuckysheetWrapper = ({
+  options,
+  onSave,
+}: {
+  options: LuckysheetConfig;
+  onSave: (value: string) => void;
+}) => {
   const defaultOptions = {
     lang: 'zh',
     container: 'luckysheet',

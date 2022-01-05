@@ -14,13 +14,13 @@ const Index: ({ location }: { location: LocationProps }) => JSX.Element = ({ loc
   } = location;
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [data, setData] = useState<[]>([]);
   const [permission, setPermission] = useState<PermissionProps>({
     copy: true,
     print: true,
     download: true,
     edit: true,
   });
+  const [dataUrl, setDataUrl] = useState<string>('');
 
   const loadData = async () => {
     setLoading(true);
@@ -38,8 +38,9 @@ const Index: ({ location }: { location: LocationProps }) => JSX.Element = ({ loc
           edit: true,
         });
         // load content from url
-        const downloaded = await request(response.data.url);
-        setData(downloaded || []);
+        // const downloaded = await request(response.data.url);
+        setDataUrl(response.data.url);
+        // setData(downloaded || []);
       }
     }
   };
@@ -55,8 +56,10 @@ const Index: ({ location }: { location: LocationProps }) => JSX.Element = ({ loc
     gridKey: new Date().getTime() + '',
     userInfo:
       '<i style="font-size:16px;color:#ff6a00;" class="fa fa-taxi" aria-hidden="true"></i> Lucky',
-    allowUpdate: false,
-    data,
+    allowUpdate: true,
+    loadUrl: dataUrl,
+    updateUrl: 'ws://localhost:8080/eoffice/api/socket/lucksheet/' + rid,
+    // data,
   };
   // return <LuckysheetWrapper options={options} />;
   return (
