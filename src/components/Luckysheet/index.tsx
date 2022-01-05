@@ -25,38 +25,37 @@ export interface LuckysheetConfig {
   };
 }
 
-const defaultOptions = {
-  lang: 'zh',
-  container: 'luckysheet',
-  showtoolbarConfig: {
-    print: false,
-  },
-  hook: {
-    workbookCreateAfter: () => {
-      console.log('workbook created');
-      try {
-        // @ts-ignore
-        const $infoDetail = $('#luckysheet_info_detail_update');
-        $infoDetail.before("<div id='saveBtn'>保存</div>");
-        // @ts-ignore
-        $('#saveBtn').on('click', () => {
-          // @ts-ignore
-          const excel = luckysheet.getAllSheets();
-          //去除临时数据,减小体积
-          for (const i in excel) {
-            excel[i].data = undefined;
-          }
-          // todo save to database
-          alert(JSON.stringify(excel));
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    },
-  },
-};
 
-const LuckysheetWrapper = ({ options }: { options: LuckysheetConfig }) => {
+const LuckysheetWrapper = ({options, onSave}: { options: LuckysheetConfig, onSave: (value: string) => void }) => {
+  const defaultOptions = {
+    lang: 'zh',
+    container: 'luckysheet',
+    myFolderUrl: '/',
+    functionButton: '<div id="saveBtn">保存</div>',
+    showtoolbarConfig: {
+      print: false,
+    },
+    hook: {
+      workbookCreateAfter: () => {
+        console.log('workbook created');
+        try {
+          // @ts-ignore
+          $('#saveBtn').on('click', () => {
+            // @ts-ignore
+            const excel = luckysheet.getAllSheets();
+            //去除临时数据,减小体积
+            for (const i in excel) {
+              excel[i].data = undefined;
+            }
+            onSave(JSON.stringify(excel));
+          });
+        } catch (e) {
+          console.log(e);
+        }
+      },
+    },
+  };
+
   useEffect(() => {
     const sheetOptions = Object.assign({}, defaultOptions, options);
     // @ts-ignore
