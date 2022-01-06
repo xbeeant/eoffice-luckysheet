@@ -5,12 +5,12 @@ import { request } from 'umi';
 import { message, Skeleton } from 'antd';
 
 interface LocationProps extends Location {
-  query: { rid: string; sid: string };
+  query: { rid: string; sid: string; k: string };
 }
 
 const Index: ({ location }: { location: LocationProps }) => JSX.Element = ({ location }) => {
   const {
-    query: { rid },
+    query: { rid, k },
   } = location;
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -61,7 +61,7 @@ const Index: ({ location }: { location: LocationProps }) => JSX.Element = ({ loc
       '<i style="font-size:16px;color:#ff6a00;" class="fa fa-taxi" aria-hidden="true"></i> Lucky',
     allowUpdate: true,
     loadUrl: dataUrl,
-    updateUrl: 'ws://localhost:8080/eoffice/api/socket/sheet/' + rid,
+    updateUrl: 'ws://localhost:8080/eoffice/api/socket/sheet/' + k + '/' + new Date().getTime(),
     // data,
   };
   // return <LuckysheetWrapper options={options} />;
