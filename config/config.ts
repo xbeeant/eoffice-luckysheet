@@ -3,6 +3,7 @@ import { defineConfig } from 'umi';
 
 import proxy from './proxy';
 import routes from './routes';
+import defaultSettings from './defaultSettings';
 
 const { REACT_APP_ENV } = process.env;
 
@@ -35,14 +36,14 @@ export default defineConfig({
   // esbuild is father build tools
   // https://umijs.org/plugins/plugin-esbuild
   esbuild: {},
-  title: false,
   ignoreMomentLocale: true,
   proxy: proxy[REACT_APP_ENV || 'dev'],
   manifest: {
-    basePath: '/luckysheet',
+    basePath: defaultSettings.basepath + '/',
   },
-  publicPath: '/luckysheet/',
-  base: '/luckysheet',
+  title: defaultSettings.title,
+  publicPath: defaultSettings.basepath + '/',
+  base: defaultSettings.basepath,
   // Fast Refresh 热更新
   fastRefresh: {},
   nodeModulesTransform: { type: 'none' },

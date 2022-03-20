@@ -3,42 +3,55 @@ import type { LuckysheetConfig, PermissionProps } from '@/components/Luckysheet'
 import LuckysheetWrapper from '@/components/Luckysheet';
 import { request } from 'umi';
 import { message, Skeleton } from 'antd';
-
-interface LocationProps extends Location {
-  query: { rid: string; sid: string };
-}
+import { API, ApiResponse, LocationProps, ResourceInfo } from './typings';
+import { PageContainer } from '@ant-design/pro-layout';
 
 const Index: ({ location }: { location: LocationProps }) => JSX.Element = ({ location }) => {
   const {
-    query: { rid },
+    query: { rid, k, vid, shareId, share },
   } = location;
 
   const [loading, setLoading] = useState<boolean>(true);
   const [title, setTitle] = useState<string>('');
 
-  const [permission, setPermission] = useState<PermissionProps>({
-    copy: true,
-    print: true,
-    download: true,
-    edit: true,
-  });
   const [dataUrl, setDataUrl] = useState<string>('');
+  const [currentUser, setCurrentUser] = useState<API.CurrentUser>();
+
+  // 配置项
+  const domain = window.location.host;
+  let options: LuckysheetConfig = {
+    // filename
+    title,
+    gridKey: rid,
+    userInfo: `<i style="font-size:16px;color:#ff6a00;" aria-hidden="true"></i> ${
+      currentUser?.name || ''
+    }`,
+    allowUpdate: true,
+    loadUrl: dataUrl,
+    updateUrl: 'ws://' + domain + '/eoffice/api/socket/sheet/' + k + '/' + new Date().getTime(),
+    // data,
+  };
 
   const loadData = async () => {
     setLoading(true);
     if (rid) {
-      const response = await request('/api/resource/detail', {
+      const response: ApiResponse<ResourceInfo> = await request('/eoffice/api/resource/detail', {
         params: {
           rid,
+          vid,
+          share,
+          shareId,
         },
       });
+      const user = await request<ApiResponse<API.CurrentUser>>('/eoffice/api/currentUser', {
+        method: 'GET',
+        skipErrorHandler: true,
+      });
+      setCurrentUser(user.data);
       if (response.success) {
-        setPermission({
-          copy: true,
-          print: true,
-          download: true,
-          edit: true,
-        });
+        options.allowUpdate = response.data.perm.edit;
+        options.allowCopy = response.data.perm.edit;
+
         setTitle(response.data.name);
         // load content from url
         // const downloaded = await request(response.data.url);
@@ -52,53 +65,39 @@ const Index: ({ location }: { location: LocationProps }) => JSX.Element = ({ loc
     loadData().then(() => setLoading(false));
   }, [rid]);
 
-  // 配置项
-  const options: LuckysheetConfig = {
-    // filename
-    title,
-    gridKey: rid,
-    userInfo:
-      '<i style="font-size:16px;color:#ff6a00;" class="fa fa-taxi" aria-hidden="true"></i> Lucky',
-    allowUpdate: true,
-    loadUrl: dataUrl,
-    updateUrl: 'ws://localhost:8080/eoffice/api/socket/sheet/' + rid,
-    // data,
-  };
-  // return <LuckysheetWrapper options={options} />;
+  console.log(currentUser?.name);
+
   return (
-    <div>
+    <PageContainer title={false} waterMarkProps={{ content: currentUser?.name || '' }}>
       {loading && <Skeleton />}
-      {!loading &&
-        (rid ? (
-          <div
-            style={{
-              height: '100%',
+      {!loading && (
+        <div
+          style={{
+            height: '100vh',
+          }}
+        >
+          <LuckysheetWrapper
+            options={options}
+            onSave={(value) => {
+              request('/eoffice/api/resource', {
+                method: 'POST',
+                requestType: 'form',
+                data: {
+                  rid,
+                  value,
+                },
+              }).then((response) => {
+                if (response.success) {
+                  message.success(response.msg);
+                } else {
+                  message.error(response.msg);
+                }
+              });
             }}
-          >
-            <LuckysheetWrapper
-              options={options}
-              onSave={(value) => {
-                request('/api/resource', {
-                  method: 'POST',
-                  requestType: 'form',
-                  data: {
-                    rid,
-                    value,
-                  },
-                }).then((response) => {
-                  if (response.success) {
-                    message.success(response.msg);
-                  } else {
-                    message.error(response.msg);
-                  }
-                });
-              }}
-            />
-          </div>
-        ) : (
-          <div>参数不全</div>
-        ))}
-    </div>
+          />
+        </div>
+      )}
+    </PageContainer>
   );
 };
 
