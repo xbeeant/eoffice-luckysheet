@@ -1,20 +1,9 @@
-import { Settings as LayoutSettings } from '@ant-design/pro-layout';
-
-const Settings: LayoutSettings & {
-  pwa?: boolean;
-  logo?: string;
+const Settings: {
+  title?: string;
+  basepath: string;
 } = {
-  navTheme: 'light',
-  // 拂晓蓝
-  primaryColor: '#1890ff',
-  layout: 'mix',
-  contentWidth: 'Fluid',
-  fixedHeader: false,
-  fixSiderbar: true,
-  colorWeak: false,
   title: 'eOffice',
-  pwa: false,
-  iconfontUrl: '',
+  basepath: '/eoffice/sheet',
 };
 
 export default Settings;

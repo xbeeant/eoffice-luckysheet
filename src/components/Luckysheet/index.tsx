@@ -21,6 +21,8 @@ export interface LuckysheetConfig {
   // ------------------
   // 允许更新
   allowUpdate: boolean;
+  // 允许复制
+  allowCopy: boolean;
   showtoolbarConfig?: {
     // 截图
     screenshot?: boolean;
@@ -43,6 +45,17 @@ const LuckysheetWrapper = ({
       print: false,
     },
     hook: {
+      // 单元格更新就保存
+      cellUpdated: () => {
+        // 保存数据
+        // @ts-ignore
+        const excel = luckysheet.getAllSheets();
+        //去除临时数据,减小体积
+        for (const i in excel) {
+          excel[i].data = undefined;
+        }
+        onSave(JSON.stringify(excel));
+      },
       workbookCreateAfter: () => {
         console.log('workbook created');
         try {
